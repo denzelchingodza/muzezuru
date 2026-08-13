@@ -1,0 +1,18 @@
+# Muzezuru
+
+> A Shona-speaking conversational AI, fine-tuned on BLOOMZ-3B via QLoRA. Free, open source, built as a zero-budget research project to bring a low-resource language (Shona, Zimbabwe) to a working chat model.
+
+Muzezuru is a full-stack AI project: a fine-tuned language model hosted on Hugging Face, a live chat demo, and this web frontend. It is not affiliated with any company; it's an independent research/portfolio project.
+
+## Key facts
+
+- Base model: bigscience/bloomz-3b, fine-tuned with QLoRA (4-bit quantization + LoRA adapters).
+- Trained on Shona instruction/response data, cleaned of a discovered data-contamination issue (documented in the GitHub repo).
+- Known limitations: strongest on conceptual/philosophical Shona prompts, weaker on factual/geographic accuracy and precise instruction-following.
+- Hosted on Hugging Face Spaces (free ZeroGPU tier); this site is a custom frontend calling that Space directly.
+
+## Links
+
+- Model + adapter: https://huggingface.co/denzelchingodza/muzezuru
+- Live demo (Gradio): https://huggingface.co/spaces/denzelchingodza/muzezuru
+- Source code: https://github.com/denzelchingodza/muzezuru

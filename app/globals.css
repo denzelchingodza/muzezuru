@@ -1,0 +1,71 @@
+/* Dark is the default theme (matches the initial darkMode state in
+   page.js) -- these are the base :root values, not an override, so there's
+   no flash of a light theme before JS applies the toggle. Light mode is
+   the override, applied via html[data-theme="light"] when the user clicks
+   the theme toggle. */
+:root {
+  --zw-green: #16a34a;
+  --zw-green-dark: #0b6e31;
+  --zw-gold: #ffd200;
+  --zw-gold-dark: #ffd200;
+  --zw-red: #de2010;
+  --bg: #121210;
+  --surface: #1a1a17;
+  --surface-2: #1f1f1c;
+  --border: #302f2a;
+  --border-strong: #45443c;
+  --text: #f3f2ec;
+  --text-secondary: #b6b4aa;
+  --text-muted: #86847a;
+  --hero-tint: #16201a;
+  --emblem-bg: #1e2b1f;
+}
+
+html[data-theme="light"] {
+  --zw-green: #0f8a3e;
+  --zw-gold-dark: #7a5c00;
+  --bg: #ffffff;
+  --surface: #f7f7f5;
+  --surface-2: #ffffff;
+  --border: #e4e2dc;
+  --border-strong: #cfccc3;
+  --text: #17170f;
+  --text-secondary: #5b5a52;
+  --text-muted: #8a8880;
+  --hero-tint: #f2f8ec;
+  --emblem-bg: #e6f2dd;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+input {
+  font-family: inherit;
+  font-size: 14px;
+  color: var(--text);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+}
+
+input:focus {
+  outline: none;
+  border-color: var(--zw-green);
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+::placeholder {
+  color: var(--text-muted);
+}

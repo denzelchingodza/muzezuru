@@ -25,10 +25,10 @@ Beyond the social angle, this project is a technical exploration of a genuinely 
 - [x] Data pipeline built (cleaning, deduplication, instruction format templating, train/val split)
 - [x] First QLoRA fine tuning run completed (BLOOMZ-3B, 15k examples, 1 epoch)
 - [x] **Data quality issue discovered and fixed:** see below
-- [ ] Retraining and evaluating on cleaned data (in progress)
-- [ ] Formal evaluation methodology for a low resource language with no standard benchmarks
-- [ ] Hosting on Hugging Face Hub + Spaces demo
-- [ ] Simple frontend
+- [x] Retraining and evaluating on cleaned data
+- [x] Formal evaluation methodology for a low resource language with no standard benchmarks (15-prompt scorecard across 7 categories)
+- [x] Hosting on Hugging Face Hub + Spaces demo -- live at [huggingface.co/spaces/denzelchingodza/muzezuru](https://huggingface.co/spaces/denzelchingodza/muzezuru)
+- [x] Simple frontend -- see [Frontend](#frontend) below
 - [ ] Integration as a connector in a broader multilingual AI tool router (longer-term)
 
 ## Data quality notes
@@ -38,6 +38,21 @@ The first training run, while mechanically successful (training loss 2.62, valid
 Investigation found that **84% of rows** (41,660 of 49,601) in `alpaca_shona_taco`'s `output` field contain exactly this English scaffolding baked in an artifact of whatever generation pipeline produced the dataset, apparently prompted to reason in three explicit steps (translate to English, answer in English, translate back to Shona) with the full raw output saved instead of just the final Shona answer.
 
 Rather than discard 84% of the dataset, the fix extracts just the text following `Response in Shona:` for every affected row, recovering the underlying clean data. This is a useful reminder: **always manually inspect raw examples from a "ready to use" public dataset before trusting it.**
+
+## Frontend
+
+A Zimbabwe flag-themed chat UI (Next.js, `app/`) that talks directly to the live Hugging Face Space -- no separate backend. Green/gold/red accent strip, hero greeting that transitions into a chat thread, suggested Shona prompts, and a mic button (browser speech-to-text, English only) for quick voice input.
+
+Run locally:
+
+```bash
+npm install
+npm run dev
+```
+
+Open http://localhost:3000. Deploy for free by importing this repo on [vercel.com](https://vercel.com) (auto-detects Next.js, no config needed).
+
+`CHAT_API_NAME` in `app/page.js` is set to `/respond`, matching the Space's live API. If the Space is ever rebuilt with a different function name, check "Use via API" on the Space page and update that constant.
 
 ## License
 
