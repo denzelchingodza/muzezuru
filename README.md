@@ -28,6 +28,26 @@ Put simply, this project proved that a fluent, custom Shona conversational model
 
 This was built primarily as a learning project, to understand the full pipeline of building a language model from data collection through to a live product, not to produce a finished, production ready assistant on a zero budget setup. That goal was met. The next step, now that the pipeline works end to end, is to apply the same process to future models with a specific focus on precision and factual reliability, using better curated data and more compute where it becomes available. Muzezuru is the working proof that the pipeline holds together. The models after it are where the factual accuracy work happens.
 
+## How training actually went
+
+Training happened across three separate runs, adding up to about 7 hours of actual GPU training time. That number does not include the extra hours lost to crashes, restarts, and debugging along the way, which was a real part of the cost of doing this for free.
+
+* First run: about 3 hours. This is the run that surfaced the data contamination issue described below, where 84 percent of training examples had English scaffolding baked into them. The model technically trained fine, but its answers were badly broken because of what it was trained on.
+* Second run: about 1 hour, on a smaller slice of the newly cleaned data, done specifically to confirm the fix actually worked before committing to a longer run.
+* Third run, the version live today: about 3 hours, on the full cleaned dataset. This is the adapter currently deployed.
+
+A number of real problems had to be solved before any of this worked reliably, and they are worth naming honestly rather than glossing over.
+
+**bitsandbytes import caching.** The transformers library checks whether the bitsandbytes package is available the first time it is imported in a session, and remembers that answer for the rest of the session. If bitsandbytes had not been installed yet at that point, it stayed marked as unavailable even after installing it moments later, silently breaking 4 bit loading. The only reliable fix was a full session restart, done with installation happening before any other import, every single time this came up.
+
+**Out of memory errors caused by BLOOM's huge vocabulary.** BLOOM's tokenizer has roughly 250,000 possible tokens, far more than most models. This makes the loss calculation during training unusually memory hungry, since it has to hold a much larger set of numbers per training step. The fix was lowering the batch size to 1 and using gradient accumulation to make up the difference, keeping the same effective batch size while using far less memory at any one moment.
+
+**Free GPU quota running out mid project.** Google Colab's free GPU quota ran out partway through training. Training moved to Kaggle notebooks instead, which provide a separate free quota (30 hours a week, with a 12 hour limit per session) that does not touch Colab's quota at all.
+
+**Lost training progress.** An interactive Kaggle session silently restarted partway through a run, wiping out about 2.6 hours of progress because no checkpoint had been saved yet at that point. After that, every long run was submitted as a background "save and run all" job instead of an interactive session, so a dropped connection could no longer erase hours of work.
+
+None of this is unusual when training on free, shared infrastructure. It is the real, unglamorous cost of doing this with no budget, and documenting it honestly is part of the point of this project.
+
 ## Technology used
 
 * Base model: BLOOMZ 3B (bigscience/bloomz-3b on Hugging Face), chosen because Shona is one of its original training languages, unlike other multilingual alternatives considered such as Aya or InkubaLM
