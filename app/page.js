@@ -17,12 +17,77 @@ import { useEffect, useRef, useState } from "react";
 // ---------------------------------------------------------------------------
 const HF_SPACE_ID = "denzelchingodza/muzezuru";
 
+// Hugging Face Spaces are reachable directly at this URL shape (username
+// and space name joined by a dash). Calling it with plain fetch, rather
+// than the @gradio/client SDK, sidesteps a real problem: that SDK sends
+// requests with credentials: "include", but this Space's CORS setup uses a
+// wildcard allowed origin, and browsers refuse to combine those two things.
+// Plain fetch defaults to not sending credentials, which matches what the
+// Space actually supports.
+const SPACE_URL = `https://${HF_SPACE_ID.replace("/", "-")}.hf.space`;
+
 // The Space exposes its respond() function at the API endpoint "/respond".
 // If the Space is ever rebuilt with a different function name, open it,
 // click "Use via API" at the bottom of the page, and update this to match.
-const CHAT_API_NAME = "/respond";
+const CHAT_API_NAME = "respond";
 
 const STORAGE_KEY = "muzezuru-conversations";
+
+// Gradio's API call is two steps: POST the inputs to join a queue, then
+// read the result back as a server-sent-events stream. This mirrors what
+// the "Use via API" page on the Space describes, just written out by hand
+// instead of going through the SDK.
+async function callSpace(message, history) {
+  const postRes = await fetch(`${SPACE_URL}/gradio_api/call/${CHAT_API_NAME}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ data: [message, history] }),
+  });
+  if (!postRes.ok) throw new Error(`Space returned ${postRes.status} joining the queue`);
+  const { event_id } = await postRes.json();
+
+  const streamRes = await fetch(`${SPACE_URL}/gradio_api/call/${CHAT_API_NAME}/${event_id}`);
+  if (!streamRes.ok || !streamRes.body) throw new Error(`Space returned ${streamRes.status} streaming the result`);
+
+  const reader = streamRes.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = "";
+  let currentEvent = "message";
+  let result = null;
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    buffer += decoder.decode(value, { stream: true });
+    const lines = buffer.split("\n");
+    buffer = lines.pop();
+
+    for (const line of lines) {
+      if (line.startsWith("event:")) {
+        currentEvent = line.slice(6).trim();
+      } else if (line.startsWith("data:")) {
+        const jsonStr = line.slice(5).trim();
+        if (!jsonStr) continue;
+        if (currentEvent === "error") {
+          throw new Error(`Space reported an error: ${jsonStr}`);
+        }
+        // Accept the payload under any non-heartbeat event name -- Gradio
+        // doesn't always label the final event "complete", so keep the
+        // most recent parseable data line seen and use that.
+        if (currentEvent !== "heartbeat") {
+          try {
+            result = JSON.parse(jsonStr);
+          } catch {
+            // Not valid JSON (e.g. a keep-alive ":\n\n" ping) -- ignore it.
+          }
+        }
+      }
+    }
+  }
+
+  if (!result) throw new Error("Space stream ended without a result");
+  return result;
+}
 
 const SUGGESTED_PROMPTS = [
   "Chii chinonzi ubuntu?",
@@ -47,6 +112,14 @@ function PlusIcon() {
   );
 }
 
+function MenuIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+      <path d="M4 6h16M4 12h16M4 18h16" />
+    </svg>
+  );
+}
+
 function ThemeIcon({ dark }) {
   return dark ? (
     <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
@@ -62,6 +135,10 @@ function ThemeIcon({ dark }) {
 
 export default function Home() {
   const [darkMode, setDarkMode] = useState(true);
+  // Only meaningful on narrow screens, where the sidebar becomes a
+  // slide-in drawer instead of always being visible -- see the
+  // .muz-sidebar CSS rules in globals.css.
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [conversations, setConversations] = useState([]);
   const [activeId, setActiveId] = useState(null);
   const [input, setInput] = useState("");
@@ -105,6 +182,12 @@ export default function Home() {
     setActiveId(null);
     setInput("");
     setError(null);
+    setSidebarOpen(false);
+  }
+
+  function openConversation(id) {
+    setActiveId(id);
+    setSidebarOpen(false);
   }
 
   async function sendMessage(text) {
@@ -131,24 +214,16 @@ export default function Home() {
     setIsLoading(true);
 
     try {
-      // This is the actual hand-off to the model: connect to the Space and
-      // call its "respond" endpoint. Imported lazily here (instead of at
-      // the top of the file) so Next.js never tries to reach the Space
-      // during server-side rendering -- only once a real message is sent
-      // in the browser.
-      const { Client } = await import("@gradio/client");
-      const client = await Client.connect(HF_SPACE_ID);
-
-      // The Space's respond() function takes (message, history), where
-      // history is every completed [user, assistant] turn before this one.
+      // This is the actual hand-off to the model. The Space's respond()
+      // function takes (message, history), where history is every
+      // completed [user, assistant] turn before this one.
       const history = [];
       for (let i = 0; i < priorMessages.length; i += 2) {
         history.push([priorMessages[i]?.content ?? null, priorMessages[i + 1]?.content ?? null]);
       }
 
-      const result = await client.predict(CHAT_API_NAME, { message: trimmed, history });
-      const reply =
-        typeof result.data?.[0] === "string" ? result.data[0] : String(result.data?.[0] ?? "");
+      const data = await callSpace(trimmed, history);
+      const reply = typeof data?.[0] === "string" ? data[0] : String(data?.[0] ?? "");
 
       setConversations((prev) =>
         prev.map((c) =>
@@ -181,17 +256,25 @@ export default function Home() {
         <div style={{ flex: 1, background: "var(--text)" }} />
       </div>
 
-      <header
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          padding: "16px 40px",
-          borderBottom: "1px solid var(--border)",
-          flexShrink: 0,
-        }}
-      >
+      <header className="muz-header" style={{ borderBottom: "1px solid var(--border)", flexShrink: 0 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <button
+            className="muz-menu-toggle"
+            onClick={() => setSidebarOpen((o) => !o)}
+            aria-label="Toggle chat history"
+            style={{
+              width: 32,
+              height: 32,
+              borderRadius: 8,
+              border: "1px solid var(--border)",
+              background: "var(--surface-2)",
+              color: "var(--text-secondary)",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <MenuIcon />
+          </button>
           <div
             style={{
               width: 28,
@@ -204,11 +287,12 @@ export default function Home() {
               color: "#fff",
               fontSize: 13,
               fontWeight: 600,
+              flexShrink: 0,
             }}
           >
             M
           </div>
-          <span style={{ fontSize: 15, fontWeight: 600, letterSpacing: 0.3 }}>
+          <span style={{ fontSize: 15, fontWeight: 600, letterSpacing: 0.3, whiteSpace: "nowrap" }}>
             MUZE<span style={{ color: "var(--zw-green)" }}>ZURU</span>
           </span>
         </div>
@@ -231,11 +315,19 @@ export default function Home() {
         </button>
       </header>
 
-      <div style={{ flex: 1, display: "flex", minHeight: 0 }}>
+      <div style={{ flex: 1, display: "flex", minHeight: 0, position: "relative" }}>
+        {/* Backdrop -- only rendered (and therefore only clickable/visible)
+            when the mobile drawer is open; CSS keeps it invisible on wider
+            screens regardless. */}
+        {sidebarOpen && <div className="muz-sidebar-backdrop" onClick={() => setSidebarOpen(false)} />}
+
         {/* Chat history sidebar -- every conversation is saved locally in
             the browser, so it's still here after a reload. Clicking one
-            reopens it in the thread view on the right. */}
+            reopens it in the thread view on the right. On narrow screens
+            this becomes a slide-in drawer (see .muz-sidebar in
+            globals.css) toggled by the header's menu button. */}
         <aside
+          className={`muz-sidebar${sidebarOpen ? " open" : ""}`}
           style={{
             width: 240,
             flexShrink: 0,
@@ -272,7 +364,7 @@ export default function Home() {
               conversations.map((c) => (
                 <button
                   key={c.id}
-                  onClick={() => setActiveId(c.id)}
+                  onClick={() => openConversation(c.id)}
                   style={{
                     display: "block",
                     width: "100%",
@@ -302,6 +394,7 @@ export default function Home() {
                message is sent. flex: 1 + justifyContent: center fills and
                centers the space to its right of the sidebar. */
             <div
+              className="muz-hero"
               style={{
                 flex: 1,
                 display: "flex",
@@ -314,7 +407,7 @@ export default function Home() {
               }}
             >
               <div style={{ width: "100%", maxWidth: 560, display: "flex", flexDirection: "column", alignItems: "center" }}>
-                <h1 style={{ fontSize: 28, fontWeight: 600, margin: "0 0 8px", lineHeight: 1.25 }}>
+                <h1 className="muz-hero-title" style={{ fontSize: 28, fontWeight: 600, margin: "0 0 8px", lineHeight: 1.25 }}>
                   Mhoro, ndini <span style={{ color: "var(--zw-green)" }}>Muzezuru</span>.
                 </h1>
                 <p style={{ fontSize: 15, color: "var(--text-secondary)", margin: "0 0 32px" }}>
@@ -385,7 +478,7 @@ export default function Home() {
                either from sending one just now or from picking one out of
                the sidebar history. */
             <div style={{ flex: 1, display: "flex", flexDirection: "column", minHeight: 0 }}>
-              <div style={{ flex: 1, overflowY: "auto", display: "flex", justifyContent: "center", padding: "20px 32px 8px" }}>
+              <div className="muz-thread-scroll" style={{ flex: 1, overflowY: "auto", display: "flex", justifyContent: "center", padding: "20px 32px 8px" }}>
                 <div style={{ width: "100%", maxWidth: 720, display: "flex", flexDirection: "column", gap: 14 }}>
                   {messages.map((m, i) => (
                     <div
@@ -446,6 +539,7 @@ export default function Home() {
 
               <form
                 onSubmit={handleSubmit}
+                className="muz-thread-form"
                 style={{ display: "flex", justifyContent: "center", padding: "14px 32px", borderTop: "1px solid var(--border)" }}
               >
                 <div style={{ width: "100%", maxWidth: 720, position: "relative" }}>
