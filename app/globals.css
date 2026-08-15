@@ -70,6 +70,29 @@ button {
   color: var(--text-muted);
 }
 
+/* The per-conversation delete button only shows up on hover (or focus, for
+   keyboard users) so the sidebar list isn't cluttered with trash icons all
+   the time. Always visible on touch devices, since there's no hover there. */
+.muz-conv-delete {
+  opacity: 0;
+}
+
+.muz-conv-row:hover .muz-conv-delete,
+.muz-conv-delete:focus-visible {
+  opacity: 1;
+}
+
+.muz-conv-delete:hover {
+  background: var(--border) !important;
+  color: var(--zw-red) !important;
+}
+
+@media (hover: none) {
+  .muz-conv-delete {
+    opacity: 1;
+  }
+}
+
 /* ---------------------------------------------------------------------
    Responsive layout. The component uses inline styles for almost
    everything (simpler to keep colocated with the markup), but media

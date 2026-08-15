@@ -120,6 +120,17 @@ function MenuIcon() {
   );
 }
 
+function TrashIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+      <path d="M3 6h18" />
+      <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+      <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+      <path d="M10 11v6M14 11v6" />
+    </svg>
+  );
+}
+
 function ThemeIcon({ dark }) {
   return dark ? (
     <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
@@ -188,6 +199,25 @@ export default function Home() {
   function openConversation(id) {
     setActiveId(id);
     setSidebarOpen(false);
+  }
+
+  // Conversations only live in this browser's localStorage -- there's no
+  // account system, so anyone else using the same browser on the same
+  // computer can see them too. Deleting is the only real privacy control
+  // available here, which is why both a per-conversation delete and a
+  // "clear all" exist right in the sidebar rather than buried in a menu.
+  function deleteConversation(id, e) {
+    e.stopPropagation();
+    setConversations((prev) => prev.filter((c) => c.id !== id));
+    if (activeId === id) setActiveId(null);
+  }
+
+  function clearAllConversations() {
+    if (conversations.length === 0) return;
+    const confirmed = typeof window !== "undefined" && window.confirm("Delete all saved conversations on this device? This can't be undone.");
+    if (!confirmed) return;
+    setConversations([]);
+    setActiveId(null);
   }
 
   async function sendMessage(text) {
@@ -362,30 +392,83 @@ export default function Home() {
               </p>
             ) : (
               conversations.map((c) => (
-                <button
+                <div
                   key={c.id}
-                  onClick={() => openConversation(c.id)}
+                  className="muz-conv-row"
                   style={{
-                    display: "block",
-                    width: "100%",
-                    textAlign: "left",
-                    fontSize: 13,
-                    padding: "9px 10px",
-                    marginBottom: 2,
+                    display: "flex",
+                    alignItems: "center",
                     borderRadius: 8,
-                    border: "none",
+                    marginBottom: 2,
                     background: c.id === activeId ? "var(--surface-2)" : "transparent",
-                    color: c.id === activeId ? "var(--text)" : "var(--text-secondary)",
-                    whiteSpace: "nowrap",
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
                   }}
                 >
-                  {c.title}
-                </button>
+                  <button
+                    onClick={() => openConversation(c.id)}
+                    style={{
+                      flex: 1,
+                      minWidth: 0,
+                      display: "block",
+                      textAlign: "left",
+                      fontSize: 13,
+                      padding: "9px 10px",
+                      border: "none",
+                      background: "transparent",
+                      color: c.id === activeId ? "var(--text)" : "var(--text-secondary)",
+                      whiteSpace: "nowrap",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                    }}
+                  >
+                    {c.title}
+                  </button>
+                  <button
+                    onClick={(e) => deleteConversation(c.id, e)}
+                    aria-label={`Delete conversation: ${c.title}`}
+                    className="muz-conv-delete"
+                    style={{
+                      flexShrink: 0,
+                      width: 26,
+                      height: 26,
+                      marginRight: 6,
+                      border: "none",
+                      background: "transparent",
+                      color: "var(--text-muted)",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      borderRadius: 6,
+                    }}
+                  >
+                    <TrashIcon />
+                  </button>
+                </div>
               ))
             )}
           </div>
+
+          {conversations.length > 0 && (
+            <div style={{ padding: "8px 12px 12px", borderTop: "1px solid var(--border)" }}>
+              <button
+                onClick={clearAllConversations}
+                style={{
+                  width: "100%",
+                  fontSize: 12,
+                  padding: "7px 10px",
+                  border: "none",
+                  background: "transparent",
+                  color: "var(--text-muted)",
+                }}
+              >
+                Clear all conversations
+              </button>
+            </div>
+          )}
+
+          <p style={{ fontSize: 11, color: "var(--text-muted)", padding: "0 12px 12px", margin: 0, lineHeight: 1.5 }}>
+            Saved only in this browser, on this device. Anyone else using it can see this history too, delete what
+            you don&apos;t want left behind.
+          </p>
         </aside>
 
         <div style={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0 }}>
