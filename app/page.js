@@ -131,6 +131,77 @@ function TrashIcon() {
   );
 }
 
+// The message box, shared by the hero and thread views. It's a textarea
+// rather than a plain input so a message can span more than one line --
+// plain Enter still sends, Shift+Enter inserts a newline instead, and the
+// box grows with the text up to a max height rather than scrolling right
+// away.
+function MessageInput({ value, onChange, onSubmit, placeholder, disabled, size }) {
+  const textareaRef = useRef(null);
+
+  useEffect(() => {
+    const el = textareaRef.current;
+    if (!el) return;
+    el.style.height = "auto";
+    el.style.height = Math.min(el.scrollHeight, 160) + "px";
+  }, [value]);
+
+  function handleKeyDown(e) {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      onSubmit();
+    }
+  }
+
+  const isHero = size === "hero";
+
+  return (
+    <>
+      <textarea
+        ref={textareaRef}
+        rows={1}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        onKeyDown={handleKeyDown}
+        placeholder={placeholder}
+        style={{
+          width: "100%",
+          display: "block",
+          resize: "none",
+          maxHeight: 160,
+          overflowY: "auto",
+          padding: isHero ? "15px 62px 15px 22px" : "10px 50px 10px 16px",
+          fontSize: isHero ? 15 : 14,
+          lineHeight: 1.4,
+        }}
+      />
+      <button
+        type="button"
+        onClick={onSubmit}
+        aria-label="Send"
+        disabled={disabled}
+        style={{
+          position: "absolute",
+          right: 6,
+          bottom: 6,
+          width: isHero ? 34 : 28,
+          height: isHero ? 34 : 28,
+          borderRadius: "50%",
+          border: "none",
+          background: "var(--zw-green)",
+          color: "#fff",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          opacity: disabled ? 0.6 : 1,
+        }}
+      >
+        <SendIcon />
+      </button>
+    </>
+  );
+}
+
 function ThemeIcon({ dark }) {
   return dark ? (
     <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
@@ -155,6 +226,7 @@ export default function Home() {
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [confirmClearOpen, setConfirmClearOpen] = useState(false);
   const hydratedRef = useRef(false);
   const threadEndRef = useRef(null);
 
@@ -214,10 +286,13 @@ export default function Home() {
 
   function clearAllConversations() {
     if (conversations.length === 0) return;
-    const confirmed = typeof window !== "undefined" && window.confirm("Delete all saved conversations on this device? This can't be undone.");
-    if (!confirmed) return;
+    setConfirmClearOpen(true);
+  }
+
+  function confirmClearAll() {
     setConversations([]);
     setActiveId(null);
+    setConfirmClearOpen(false);
   }
 
   async function sendMessage(text) {
@@ -268,11 +343,6 @@ export default function Home() {
     } finally {
       setIsLoading(false);
     }
-  }
-
-  function handleSubmit(e) {
-    e.preventDefault();
-    sendMessage(input);
   }
 
   return (
@@ -486,7 +556,7 @@ export default function Home() {
                 alignItems: "center",
                 padding: "56px 32px",
                 textAlign: "center",
-                background: "linear-gradient(180deg, var(--hero-tint) 0%, var(--bg) 65%)",
+                background: "var(--bg)",
               }}
             >
               <div style={{ width: "100%", maxWidth: 560, display: "flex", flexDirection: "column", alignItems: "center" }}>
@@ -497,42 +567,16 @@ export default function Home() {
                   Fine-tuned on BLOOMZ-3B via QLoRA, ready for any conversation in Shona.
                 </p>
 
-                <form onSubmit={handleSubmit} style={{ width: "100%", margin: "0 0 18px", position: "relative" }}>
-                  <input
+                <div className="muz-input-box" style={{ width: "100%", margin: "0 0 18px" }}>
+                  <MessageInput
                     value={input}
-                    onChange={(e) => setInput(e.target.value)}
+                    onChange={setInput}
+                    onSubmit={() => sendMessage(input)}
                     placeholder="Ndibvunze zvese..."
-                    style={{
-                      width: "100%",
-                      padding: "15px 62px 15px 22px",
-                      fontSize: 15,
-                      borderColor: "var(--border-strong)",
-                    }}
-                  />
-                  <button
-                    type="submit"
-                    aria-label="Send"
                     disabled={isLoading}
-                    style={{
-                      position: "absolute",
-                      right: 6,
-                      top: "50%",
-                      transform: "translateY(-50%)",
-                      width: 34,
-                      height: 34,
-                      borderRadius: "50%",
-                      border: "none",
-                      background: "var(--zw-green)",
-                      color: "#fff",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      opacity: isLoading ? 0.6 : 1,
-                    }}
-                  >
-                    <SendIcon />
-                  </button>
-                </form>
+                    size="hero"
+                  />
+                </div>
 
                 <div style={{ display: "flex", gap: 8, justifyContent: "center", flexWrap: "wrap" }}>
                   {SUGGESTED_PROMPTS.map((p) => (
@@ -620,43 +664,21 @@ export default function Home() {
                 </div>
               </div>
 
-              <form
-                onSubmit={handleSubmit}
+              <div
                 className="muz-thread-form"
                 style={{ display: "flex", justifyContent: "center", padding: "14px 32px", borderTop: "1px solid var(--border)" }}
               >
-                <div style={{ width: "100%", maxWidth: 720, position: "relative" }}>
-                  <input
+                <div className="muz-input-box" style={{ width: "100%", maxWidth: 720 }}>
+                  <MessageInput
                     value={input}
-                    onChange={(e) => setInput(e.target.value)}
+                    onChange={setInput}
+                    onSubmit={() => sendMessage(input)}
                     placeholder="Nyora meseji..."
-                    style={{ width: "100%", padding: "10px 50px 10px 16px", height: 40 }}
-                  />
-                  <button
-                    type="submit"
-                    aria-label="Send"
                     disabled={isLoading}
-                    style={{
-                      position: "absolute",
-                      right: 6,
-                      top: "50%",
-                      transform: "translateY(-50%)",
-                      width: 28,
-                      height: 28,
-                      borderRadius: "50%",
-                      border: "none",
-                      background: "var(--zw-green)",
-                      color: "#fff",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      opacity: isLoading ? 0.6 : 1,
-                    }}
-                  >
-                    <SendIcon />
-                  </button>
+                    size="thread"
+                  />
                 </div>
-              </form>
+              </div>
             </div>
           )}
         </div>
@@ -692,6 +714,76 @@ export default function Home() {
           </a>
         </span>
       </div>
+
+      {/* Confirm dialog for "Clear all conversations" -- a themed in-app
+          modal instead of the browser's native window.confirm(), so it
+          matches dark/light mode and the rest of the UI. */}
+      {confirmClearOpen && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="muz-confirm-title"
+          onClick={() => setConfirmClearOpen(false)}
+          style={{
+            position: "fixed",
+            inset: 0,
+            background: "rgba(0, 0, 0, 0.5)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 100,
+            padding: 20,
+          }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              width: "100%",
+              maxWidth: 340,
+              background: "var(--surface)",
+              border: "1px solid var(--border)",
+              borderRadius: 14,
+              padding: 20,
+              boxShadow: "0 12px 40px rgba(0, 0, 0, 0.35)",
+            }}
+          >
+            <h2 id="muz-confirm-title" style={{ fontSize: 15, fontWeight: 600, margin: "0 0 8px" }}>
+              Delete all conversations?
+            </h2>
+            <p style={{ fontSize: 13, color: "var(--text-secondary)", margin: "0 0 18px", lineHeight: 1.5 }}>
+              This removes every saved conversation on this device. It can&apos;t be undone.
+            </p>
+            <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
+              <button
+                onClick={() => setConfirmClearOpen(false)}
+                style={{
+                  fontSize: 13,
+                  padding: "8px 14px",
+                  borderRadius: 8,
+                  border: "1px solid var(--border)",
+                  background: "var(--surface-2)",
+                  color: "var(--text)",
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmClearAll}
+                style={{
+                  fontSize: 13,
+                  padding: "8px 14px",
+                  borderRadius: 8,
+                  border: "none",
+                  background: "var(--zw-red)",
+                  color: "#fff",
+                }}
+              >
+                Delete all
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }

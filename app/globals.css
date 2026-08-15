@@ -17,7 +17,6 @@
   --text: #f3f2ec;
   --text-secondary: #b6b4aa;
   --text-muted: #86847a;
-  --hero-tint: #16201a;
   --emblem-bg: #1e2b1f;
 }
 
@@ -32,7 +31,6 @@ html[data-theme="light"] {
   --text: #17170f;
   --text-secondary: #5b5a52;
   --text-muted: #8a8880;
-  --hero-tint: #f2f8ec;
   --emblem-bg: #e6f2dd;
 }
 
@@ -47,18 +45,13 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
-input {
+textarea {
   font-family: inherit;
   font-size: 14px;
   color: var(--text);
-  background: var(--surface-2);
-  border: 1px solid var(--border);
-  border-radius: 999px;
-}
-
-input:focus {
+  background: transparent;
+  border: none;
   outline: none;
-  border-color: var(--zw-green);
 }
 
 button {
@@ -68,6 +61,22 @@ button {
 
 ::placeholder {
   color: var(--text-muted);
+}
+
+/* The box around just the message-input row (hero and thread views both
+   use this) -- a visible border plus a soft highlight when it's focused,
+   rather than tinting the whole page around it. */
+.muz-input-box {
+  position: relative;
+  border: 1px solid var(--border-strong);
+  border-radius: 20px;
+  background: var(--surface-2);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.muz-input-box:focus-within {
+  border-color: var(--zw-green);
+  box-shadow: 0 0 0 3px var(--emblem-bg);
 }
 
 /* The per-conversation delete button only shows up on hover (or focus, for
