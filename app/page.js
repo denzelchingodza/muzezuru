@@ -32,6 +32,7 @@ const SPACE_URL = `https://${HF_SPACE_ID.replace("/", "-")}.hf.space`;
 const CHAT_API_NAME = "respond";
 
 const STORAGE_KEY = "muzezuru-conversations";
+const NOTICE_STORAGE_KEY = "muzezuru-notice-dismissed";
 
 // Gradio's API call is two steps: POST the inputs to join a queue, then
 // read the result back as a server-sent-events stream. This mirrors what
@@ -225,6 +226,14 @@ function FlagBadge({ size = 28 }) {
   );
 }
 
+function CloseIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+      <path d="M18 6L6 18M6 6l12 12" />
+    </svg>
+  );
+}
+
 function ThemeIcon({ dark }) {
   return dark ? (
     <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
@@ -250,6 +259,9 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [confirmClearOpen, setConfirmClearOpen] = useState(false);
+  // A small heads-up that this is a work in progress, shown once per
+  // browser until dismissed -- see the localStorage check below.
+  const [showNotice, setShowNotice] = useState(false);
   const hydratedRef = useRef(false);
   const threadEndRef = useRef(null);
 
@@ -267,6 +279,27 @@ export default function Home() {
     }
     hydratedRef.current = true;
   }, []);
+
+  // Show the work-in-progress notice unless this browser has already
+  // dismissed it.
+  useEffect(() => {
+    try {
+      if (!localStorage.getItem(NOTICE_STORAGE_KEY)) setShowNotice(true);
+    } catch {
+      // Blocked storage -- just skip the notice rather than showing it
+      // every single visit.
+    }
+  }, []);
+
+  function dismissNotice() {
+    setShowNotice(false);
+    try {
+      localStorage.setItem(NOTICE_STORAGE_KEY, "1");
+    } catch {
+      // Nothing to do if storage is blocked -- it'll just show again
+      // next visit.
+    }
+  }
 
   // Save on every change, but only after the initial load above has run --
   // otherwise this would fire first (with the empty starting state) and
@@ -789,6 +822,52 @@ export default function Home() {
               </button>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* A quiet heads-up, not a blocking dialog -- sits in the corner and
+          stays out of the way until dismissed. */}
+      {showNotice && (
+        <div
+          role="status"
+          style={{
+            position: "fixed",
+            right: 16,
+            bottom: 16,
+            maxWidth: 300,
+            display: "flex",
+            alignItems: "flex-start",
+            gap: 8,
+            background: "var(--surface)",
+            border: "1px solid var(--border)",
+            borderRadius: 14,
+            padding: "14px 12px 14px 16px",
+            boxShadow: "0 8px 28px rgba(0, 0, 0, 0.3)",
+            zIndex: 60,
+          }}
+        >
+          <p style={{ flex: 1, fontSize: 13, color: "var(--text-secondary)", margin: 0, lineHeight: 1.5 }}>
+            This is a work in progress. I&apos;m still developing and fine-tuning Muzezuru to be more precise and
+            reliable.
+          </p>
+          <button
+            onClick={dismissNotice}
+            aria-label="Dismiss this message"
+            style={{
+              flexShrink: 0,
+              width: 22,
+              height: 22,
+              border: "none",
+              background: "transparent",
+              color: "var(--text-muted)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              borderRadius: 6,
+            }}
+          >
+            <CloseIcon />
+          </button>
         </div>
       )}
     </main>
