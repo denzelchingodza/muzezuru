@@ -202,6 +202,29 @@ function MessageInput({ value, onChange, onSubmit, placeholder, disabled, size }
   );
 }
 
+// The header mark: the Zimbabwean flag's seven stripes and star, cropped
+// to a circle in place of a plain solid-color badge.
+function FlagBadge({ size = 28 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 28 28" aria-hidden="true" style={{ flexShrink: 0 }}>
+      <clipPath id="muz-flag-clip">
+        <circle cx="14" cy="14" r="14" />
+      </clipPath>
+      <g clipPath="url(#muz-flag-clip)">
+        <rect width="28" height="28" fill="var(--zw-green)" />
+        <rect y="4" width="28" height="4" fill="var(--zw-gold)" />
+        <rect y="8" width="28" height="4" fill="var(--zw-red)" />
+        <rect y="12" width="28" height="4" fill="var(--text)" />
+        <rect y="16" width="28" height="4" fill="var(--zw-red)" />
+        <rect y="20" width="28" height="4" fill="var(--zw-gold)" />
+        <rect y="24" width="28" height="4" fill="var(--zw-green)" />
+        <polygon points="0,0 0,28 13,14" fill="#fff" />
+        <polygon points="6,14 7.4,10.2 8.8,14 5.1,11.5 10.5,11.5" fill="var(--zw-red)" />
+      </g>
+    </svg>
+  );
+}
+
 function ThemeIcon({ dark }) {
   return dark ? (
     <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
@@ -375,23 +398,7 @@ export default function Home() {
           >
             <MenuIcon />
           </button>
-          <div
-            style={{
-              width: 28,
-              height: 28,
-              borderRadius: "50%",
-              background: "var(--zw-green)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              color: "#fff",
-              fontSize: 13,
-              fontWeight: 600,
-              flexShrink: 0,
-            }}
-          >
-            M
-          </div>
+          <FlagBadge />
           <span style={{ fontSize: 15, fontWeight: 600, letterSpacing: 0.3, whiteSpace: "nowrap" }}>
             MUZE<span style={{ color: "var(--zw-green)" }}>ZURU</span>
           </span>
