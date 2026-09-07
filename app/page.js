@@ -516,31 +516,17 @@ export default function Home() {
             MUZE<span style={{ color: "var(--zw-green)" }}>ZURU</span>
           </span>
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <Link
-            href="/learn"
-            style={{
-              fontSize: 13, padding: "6px 14px", borderRadius: 8,
-              border: "1px solid var(--border)", background: "var(--surface-2)",
-              color: "var(--text-secondary)", textDecoration: "none",
-              display: "flex", alignItems: "center", gap: 5, whiteSpace: "nowrap",
-            }}
-          >
-            <span style={{ fontSize: 14 }}>📖</span>
-            Dzidza
-          </Link>
-          <button
-            onClick={() => setDarkMode((d) => !d)}
-            aria-label="Toggle dark mode"
-            style={{
-              width: 32, height: 32, borderRadius: "50%", border: "1px solid var(--border)",
-              background: "var(--surface-2)", color: "var(--text-secondary)",
-              display: "flex", alignItems: "center", justifyContent: "center",
-            }}
-          >
+        <button
+          onClick={() => setDarkMode((d) => !d)}
+          aria-label="Toggle dark mode"
+          style={{
+            width: 32, height: 32, borderRadius: "50%", border: "1px solid var(--border)",
+            background: "var(--surface-2)", color: "var(--text-secondary)",
+            display: "flex", alignItems: "center", justifyContent: "center",
+          }}
+        >
           <ThemeIcon dark={darkMode} />
-          </button>
-        </div>
+        </button>
       </header>
 
       <div style={{ flex: 1, display: "flex", minHeight: 0, position: "relative" }}>
@@ -662,9 +648,22 @@ export default function Home() {
             )}
           </div>
 
-          <p style={{ fontSize: 11, color: "var(--text-muted)", padding: "8px 12px 12px", margin: 0, lineHeight: 1.5 }}>
+          <p style={{ fontSize: 11, color: "var(--text-muted)", padding: "8px 12px 4px", margin: 0, lineHeight: 1.5 }}>
             Saved only in this browser. Anyone else using it can see this history, so delete what you don&apos;t want left behind.
           </p>
+          <div style={{ padding: "8px 12px 14px" }}>
+            <Link
+              href="/learn"
+              style={{
+                display: "block", textAlign: "center", fontSize: 12,
+                padding: "8px 12px", borderRadius: 8,
+                border: "1px solid var(--border)", color: "var(--text-secondary)",
+                textDecoration: "none", background: "var(--surface-2)",
+              }}
+            >
+              Dzidza ChiShona — Learn Shona
+            </Link>
+          </div>
         </aside>
 
         <div style={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0 }}>
