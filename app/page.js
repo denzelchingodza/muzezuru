@@ -408,7 +408,7 @@ export default function Home() {
       );
     } catch (err) {
       console.error(err);
-      setError("Couldn't reach Muzezuru right now. The free GPU pool may be busy or the daily quota may be used up — try again in a bit.");
+      setError("Couldn't reach Muzezuru right now. The free GPU pool may be busy or the daily quota may be used up. Try again in a bit.");
     } finally {
       setIsLoading(false);
     }
@@ -552,13 +552,13 @@ export default function Home() {
             {showAbout && (
               <div style={{ fontSize: 12, color: "var(--text-secondary)", lineHeight: 1.6 }}>
                 <p style={{ margin: "0 0 8px" }}>
-                  A fine-tuned Shona language model built on BLOOMZ-3B using QLoRA with 4-bit quantization — trained entirely on free compute.
+                  A fine-tuned Shona language model built on BLOOMZ-3B using QLoRA with 4-bit quantization, trained entirely on free compute.
                 </p>
                 <p style={{ margin: "0 0 8px" }}>
                   Shona is a low-resource African language with almost no NLP tooling. This project is an attempt to change that.
                 </p>
                 <p style={{ margin: "0 0 10px" }}>
-                  The model still hallucinates on some inputs — an honest limitation of the dataset size. Improvements are ongoing.
+                  The model still hallucinates on some inputs, an honest limitation of the dataset size. Improvements are ongoing.
                 </p>
                 <div style={{ display: "flex", gap: 8 }}>
                   <a href="https://huggingface.co/denzelchingodza/muzezuru" target="_blank" rel="noopener"
@@ -575,7 +575,7 @@ export default function Home() {
           </div>
 
           <p style={{ fontSize: 11, color: "var(--text-muted)", padding: "8px 12px 12px", margin: 0, lineHeight: 1.5 }}>
-            Saved only in this browser. Anyone else using it can see this history — delete what you don&apos;t want left behind.
+            Saved only in this browser. Anyone else using it can see this history, so delete what you don&apos;t want left behind.
           </p>
         </aside>
 
@@ -593,7 +593,7 @@ export default function Home() {
                   Mhoro, ndini <span style={{ color: "var(--zw-green)" }}>Muzezuru</span>.
                 </h1>
                 <p style={{ fontSize: 15, color: "var(--text-secondary)", margin: "0 0 6px" }}>
-                  A fine-tuned Shona language model — still learning, openly a work in progress.
+                  A fine-tuned Shona language model, still learning, openly a work in progress.
                 </p>
                 <p style={{ fontSize: 12, color: "var(--text-muted)", margin: "0 0 32px" }}>
                   Try a greeting, ask about Zimbabwe, or request a proverb. Shona only.
@@ -729,7 +729,7 @@ export default function Home() {
           }}
         >
           <p style={{ flex: 1, fontSize: 13, color: "var(--text-secondary)", margin: 0, lineHeight: 1.5 }}>
-            This is a work in progress. Muzezuru is still being improved — it may hallucinate or give unexpected responses, especially on complex prompts.
+            This is a work in progress. Muzezuru is still being improved and may hallucinate or give unexpected responses, especially on complex prompts.
           </p>
           <button
             onClick={dismissNotice} aria-label="Dismiss this message"
