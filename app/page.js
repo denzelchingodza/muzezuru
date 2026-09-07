@@ -57,10 +57,76 @@ const SUGGESTED_PROMPTS = [
   "Ndiudze nezve Zimbabwe",
   "Shandura: 'The sun rises in the east'",
   "Ipa nzira yekubika sadza",
-  "Taura tsumo yemaShona",
+  "Taura tsumo nemadimikira echishona",
   "Ndiani aive Sekuru Kaguvi?",
   "Kurova guva kureva chii?",
 ];
+
+const PROVERBS = [
+  { shona: "Rina manyanga hariputirwi mumushunje", meaning: "That which has horns cannot be concealed in a bundle of grass. Truth will always come to light." },
+  { shona: "Mwana washe muranda kumwe", meaning: "The son of a chief is a subject elsewhere. No one's status follows them everywhere." },
+  { shona: "Chinokanganwa idemo, chitsiga hachikanganwe", meaning: "What forgets is the axe. The faggot does not forget. Those who cause harm forget — the wounded do not." },
+  { shona: "Chinonyenga chinokotama, chinosimudza musoro chawana", meaning: "He who is courting bows down. He raises his head when married. Humility serves us when we need something; pride returns when we have it." },
+  { shona: "Vaviri vaviri, wechitatu muzvinaguhwa", meaning: "Two are a pair, a third is a gossip. Three is a crowd — secrets do not keep with three." },
+  { shona: "Muromo haupi, chinopa maoko", meaning: "The mouth does not give. What gives are the hands. Deeds speak louder than words." },
+  { shona: "Atswinya arwa", meaning: "One who has pinched has fought. Every little contribution counts." },
+  { shona: "Avengwa anhuhwa", meaning: "One who is hated stinks. Call a dog a bad name and hang him — perception shapes reality." },
+  { shona: "Chafamba chasvava", meaning: "One who has travelled has faded. Away from home one loses importance." },
+  { shona: "Pagara murimi pagara mupopoti", meaning: "Where there lives a farmer there lives a grumbler. A farmer is never satisfied with the work done for him." },
+  { shona: "Nzombe huru yakabva mukurerwa", meaning: "A big bull resulted from being nurtured. Big results have small but indispensable beginnings." },
+  { shona: "Mwoyochena unobayisa", meaning: "A kind heart gets one killed. Kind hearts are soonest wronged." },
+  { shona: "Nherera inoguta musi wafa amai", meaning: "An orphan eats his fill on the day his mother has died. His future outlook is bleak — present comfort can mask coming hardship." },
+  { shona: "Mapudzi anowira kusina hari", meaning: "Squashes fall where there are no pots. Fortune favours fools." },
+  { shona: "Chivendekete anoseka chimedure", meaning: "Cracked laughs at Broken. The pot calls the kettle black." },
+  { shona: "Unaki hwemukadzi huri pamwana", meaning: "The beauty of a wife lies in the child. A good wife is one who bears children." },
+  { shona: "Matakadya kare haanyaradzi mwana", meaning: "Former meals do not satisfy a child. Boasting of past successes will not solve present problems." },
+  { shona: "Nzou hairemerwi nenyanga dzayo", meaning: "An elephant is not burdened by its own tusks. One should be equal to one's responsibilities." },
+  { shona: "Chidembo hachinzwi kunhuhwa kwacho", meaning: "The skunk does not smell its own stink. People are blind to their own faults." },
+  { shona: "Mwana asingachemi anofira mumbereko", meaning: "A child who does not cry dies in the cradle. One should give voice to one's complaints." },
+  { shona: "Kwadzinorohwa matumbu ndiko kwadzinomhanyira", meaning: "Where they are kicked in the belly is the place to which they run. Harshness can attract more than kindness." },
+  { shona: "Mugoni wepwere ndiye asinayo", meaning: "The one who can manage a child is the one who has none. It is easy to advise on what you have not experienced." },
+  { shona: "Nzira masanga", meaning: "Paths mean meetings. One learns different ways by meeting others. A common goal may be reached by different paths." },
+  { shona: "Kufa izuva rimwe, kuora igore", meaning: "Death is one day. Corruption is a year. Beware of what may harm you slowly — its consequences last far longer." },
+  { shona: "Nhasi chineni, mangwana chinewe", meaning: "Today it is my turn, tomorrow it is yours. Do not mock anyone in trouble — you may be in their shoes tomorrow." },
+  { shona: "Chigere ibwe muti unowa", meaning: "What abides is the stone, the tree falls. No man should boast about his strength or his life." },
+  { shona: "Kupa kuturika", meaning: "To give is to hang up. Giving to help others is a good investment — it will come back to you." },
+  { shona: "Chirema ndechina mazano, chinotamba chakazendama kumadziro", meaning: "A cripple is one who has sense — he dances while leaning against the walls. A person must come to terms with his limitations." },
+  { shona: "Kangoma kanoririsa ndiko kanotsemuka", meaning: "The little drum which sounds the loudest is the one which splits. When a fashion or popularity is at its height, it is about to fade." },
+  { shona: "Chakatairi pasi ndeyavanhuvose, asi iri mumuti ndeyo wagona kukwira", meaning: "The fruit on the ground belongs to everyone. That on the tree is for him who can climb. Do not take anything for granted unless it is in your possession." },
+  { shona: "Rombe ngerichaenda rodzoka ndimambo", meaning: "The beggar is the one who goes away — on his return he is a chief. One who shows initiative is often ridiculed, but if he succeeds he will be praised." },
+  { shona: "Gore harizi pakaza rimwe", meaning: "No year comes from where another came. Opportunities do not come twice." },
+  { shona: "Ukama hahusukwi nemvura hukabva", meaning: "Kinship is not washed away with water. Blood is thicker than water." },
+  { shona: "Charovedzera charovedzera, gudo rakakwira mawere kwasviba", meaning: "One who is used to something masters it. The baboon climbed the precipice in the dark. We do easily that to which we are accustomed." },
+  { shona: "Kurayira kunoda pwere, mukuru ndimambo", meaning: "Discipline requires a child — an adult is a chief. Discipline must be administered while children are young." },
+  { shona: "Mbiri matende inoputsika", meaning: "Fame is a fragile gourd — it breaks. One's reputation will be destroyed if one does not take care of it." },
+  { shona: "Ugaro mwena kutevedza, hunoguma", meaning: "Life is a hole in the ground — follow it and it comes to an end. Everyone is mortal." },
+  { shona: "Mwana wengwe mwana wengwe, kuona chikara haatizi", meaning: "A leopard's cub is a leopard's cub — if it sees a wild beast it does not flee. A chip of the old block." },
+  { shona: "Kuziva mbuya huudzwa", meaning: "To know one's in-laws means being told who they are. Wisdom comes from others — learning never ends." },
+  { shona: "Tsvaga zano iwe une rakowo", meaning: "Seek a plan when you have one of your own. Do not come to others empty-handed." },
+];
+
+function pickProverbs(n = 5) {
+  const shuffled = [...PROVERBS].sort(() => Math.random() - 0.5);
+  return shuffled.slice(0, n);
+}
+
+function isTsumoRequest(text) {
+  const lower = text.toLowerCase().trim();
+  return (
+    lower.includes("tsumo") ||
+    lower.includes("madimikira") ||
+    lower === "taura tsumo nemadimikira echishona"
+  );
+}
+
+function formatTsumoReply(proverbs) {
+  return (
+    "Heano tsumo dzemaShona nemadimikira adzo:\n\n" +
+    proverbs
+      .map((p) => `${p.shona}\n${p.meaning}`)
+      .join("\n\n")
+  );
+}
 
 function SendIcon() {
   return (
@@ -246,7 +312,7 @@ function MessageBubble({ m, onFeedback }) {
             borderRadius: 12,
             borderTopRightRadius: m.role === "user" ? 2 : 12,
             borderTopLeftRadius: m.role === "assistant" ? 2 : 12,
-            padding: "10px 12px", fontSize: 14, lineHeight: 1.5,
+            padding: "10px 12px", fontSize: 14, lineHeight: 1.5, whiteSpace: "pre-wrap",
           }}
         >
           {m.content}
@@ -395,12 +461,19 @@ export default function Home() {
     setIsLoading(true);
 
     try {
-      const history = [];
-      for (let i = 0; i < priorMessages.length; i += 2) {
-        history.push([priorMessages[i]?.content ?? null, priorMessages[i + 1]?.content ?? null]);
+      let reply;
+
+      if (isTsumoRequest(trimmed)) {
+        reply = formatTsumoReply(pickProverbs(5));
+      } else {
+        const history = [];
+        for (let i = 0; i < priorMessages.length; i += 2) {
+          history.push([priorMessages[i]?.content ?? null, priorMessages[i + 1]?.content ?? null]);
+        }
+        const data = await callSpace(trimmed, history);
+        reply = typeof data?.[0] === "string" ? data[0] : String(data?.[0] ?? "");
       }
-      const data = await callSpace(trimmed, history);
-      const reply = typeof data?.[0] === "string" ? data[0] : String(data?.[0] ?? "");
+
       setConversations((prev) =>
         prev.map((c) =>
           c.id === convId ? { ...c, messages: [...c.messages, { role: "assistant", content: reply }] } : c
