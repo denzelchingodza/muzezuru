@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 
 const HF_SPACE_ID = "denzelchingodza/muzezuru";
 const SPACE_URL = `https://${HF_SPACE_ID.replace("/", "-")}.hf.space`;
@@ -515,17 +516,31 @@ export default function Home() {
             MUZE<span style={{ color: "var(--zw-green)" }}>ZURU</span>
           </span>
         </div>
-        <button
-          onClick={() => setDarkMode((d) => !d)}
-          aria-label="Toggle dark mode"
-          style={{
-            width: 32, height: 32, borderRadius: "50%", border: "1px solid var(--border)",
-            background: "var(--surface-2)", color: "var(--text-secondary)",
-            display: "flex", alignItems: "center", justifyContent: "center",
-          }}
-        >
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <Link
+            href="/learn"
+            style={{
+              fontSize: 13, padding: "6px 14px", borderRadius: 8,
+              border: "1px solid var(--border)", background: "var(--surface-2)",
+              color: "var(--text-secondary)", textDecoration: "none",
+              display: "flex", alignItems: "center", gap: 5, whiteSpace: "nowrap",
+            }}
+          >
+            <span style={{ fontSize: 14 }}>📖</span>
+            Dzidza
+          </Link>
+          <button
+            onClick={() => setDarkMode((d) => !d)}
+            aria-label="Toggle dark mode"
+            style={{
+              width: 32, height: 32, borderRadius: "50%", border: "1px solid var(--border)",
+              background: "var(--surface-2)", color: "var(--text-secondary)",
+              display: "flex", alignItems: "center", justifyContent: "center",
+            }}
+          >
           <ThemeIcon dark={darkMode} />
-        </button>
+          </button>
+        </div>
       </header>
 
       <div style={{ flex: 1, display: "flex", minHeight: 0, position: "relative" }}>
