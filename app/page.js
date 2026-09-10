@@ -56,11 +56,7 @@ const SUGGESTED_PROMPTS = [
   "Mhoro, uri sei?",
   "Chii chinonzi ubuntu?",
   "Ndiudze nezve Zimbabwe",
-  "Shandura: 'The sun rises in the east'",
-  "Ipa nzira yekubika sadza",
   "Taura tsumo nemadimikira echishona",
-  "Ndiani aive Sekuru Kaguvi?",
-  "Kurova guva kureva chii?",
 ];
 
 const PROVERBS = [
@@ -156,6 +152,14 @@ function TrashIcon() {
       <path d="M3 6h18" /><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
       <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
       <path d="M10 11v6M14 11v6" />
+    </svg>
+  );
+}
+function BookIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+      <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+      <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
     </svg>
   );
 }
@@ -516,17 +520,30 @@ export default function Home() {
             MUZE<span style={{ color: "var(--zw-green)" }}>ZURU</span>
           </span>
         </div>
-        <button
-          onClick={() => setDarkMode((d) => !d)}
-          aria-label="Toggle dark mode"
-          style={{
-            width: 32, height: 32, borderRadius: "50%", border: "1px solid var(--border)",
-            background: "var(--surface-2)", color: "var(--text-secondary)",
-            display: "flex", alignItems: "center", justifyContent: "center",
-          }}
-        >
-          <ThemeIcon dark={darkMode} />
-        </button>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <Link
+            href="/learn"
+            style={{
+              display: "flex", alignItems: "center", gap: 6, fontSize: 13, fontWeight: 600,
+              padding: "7px 14px", borderRadius: 8, border: "none",
+              background: "var(--zw-green)", color: "#fff", textDecoration: "none", whiteSpace: "nowrap",
+            }}
+          >
+            <BookIcon />
+            Dzidza<span className="muz-learn-btn-sub"> ChiShona</span>
+          </Link>
+          <button
+            onClick={() => setDarkMode((d) => !d)}
+            aria-label="Toggle dark mode"
+            style={{
+              width: 32, height: 32, borderRadius: "50%", border: "1px solid var(--border)",
+              background: "var(--surface-2)", color: "var(--text-secondary)",
+              display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
+            }}
+          >
+            <ThemeIcon dark={darkMode} />
+          </button>
+        </div>
       </header>
 
       <div style={{ flex: 1, display: "flex", minHeight: 0, position: "relative" }}>
@@ -648,22 +665,9 @@ export default function Home() {
             )}
           </div>
 
-          <p style={{ fontSize: 11, color: "var(--text-muted)", padding: "8px 12px 4px", margin: 0, lineHeight: 1.5 }}>
+          <p style={{ fontSize: 11, color: "var(--text-muted)", padding: "8px 12px 14px", margin: 0, lineHeight: 1.5 }}>
             Saved only in this browser. Anyone else using it can see this history, so delete what you don&apos;t want left behind.
           </p>
-          <div style={{ padding: "8px 12px 14px" }}>
-            <Link
-              href="/learn"
-              style={{
-                display: "block", textAlign: "center", fontSize: 12,
-                padding: "8px 12px", borderRadius: 8,
-                border: "1px solid var(--border)", color: "var(--text-secondary)",
-                textDecoration: "none", background: "var(--surface-2)",
-              }}
-            >
-              Dzidza ChiShona — Learn Shona
-            </Link>
-          </div>
         </aside>
 
         <div style={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0 }}>

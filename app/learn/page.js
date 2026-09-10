@@ -43,7 +43,8 @@ function Search({ value, onChange, placeholder }) {
 function RefTable({ data, search, cols }) {
   return (
     <div style={{ border: "1px solid var(--border)", borderRadius: 10, overflow: "hidden" }}>
-      <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+      <div className="muz-table-wrap">
+      <table style={{ width: "100%", minWidth: 480, borderCollapse: "collapse", fontSize: 13 }}>
         <thead>
           <tr style={{ background: "var(--surface-2)" }}>
             {cols.map((c) => (
@@ -83,6 +84,7 @@ function RefTable({ data, search, cols }) {
           ))}
         </tbody>
       </table>
+      </div>
     </div>
   );
 }
@@ -108,7 +110,8 @@ function ProverbsView() {
         {filtered.length} proverb{filtered.length !== 1 ? "s" : ""}
       </p>
       <div style={{ border: "1px solid var(--border)", borderRadius: 10, overflow: "hidden" }}>
-        <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+      <div className="muz-table-wrap">
+        <table style={{ width: "100%", minWidth: 560, borderCollapse: "collapse", fontSize: 13 }}>
           <thead>
             <tr style={{ background: "var(--surface-2)" }}>
               <th style={{ padding: "10px 14px", textAlign: "left", fontWeight: 700, fontSize: 11, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--text-muted)", borderBottom: "1px solid var(--border)", width: "36%" }}>Shona</th>
@@ -130,6 +133,7 @@ function ProverbsView() {
             ))}
           </tbody>
         </table>
+      </div>
       </div>
     </div>
   );
@@ -211,7 +215,8 @@ function NhetemboView() {
         Mitupo (Totems) and Zvidawo (Praise Names)
       </h3>
       <div style={{ border: "1px solid var(--border)", borderRadius: 10, overflow: "hidden" }}>
-        <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+      <div className="muz-table-wrap">
+        <table style={{ width: "100%", minWidth: 480, borderCollapse: "collapse", fontSize: 13 }}>
           <thead>
             <tr style={{ background: "var(--surface-2)" }}>
               <th style={{ padding: "10px 14px", textAlign: "left", fontWeight: 700, fontSize: 11, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--text-muted)", borderBottom: "1px solid var(--border)", width: 120 }}>Mutupo</th>
@@ -231,6 +236,7 @@ function NhetemboView() {
             ))}
           </tbody>
         </table>
+      </div>
       </div>
     </div>
   );
@@ -265,7 +271,7 @@ export default function LearnPage() {
       </div>
 
       {/* header */}
-      <header style={{
+      <header className="muz-learn-header" style={{
         borderBottom: "1px solid var(--border)", padding: "13px 32px",
         display: "flex", alignItems: "center", justifyContent: "space-between",
         flexShrink: 0,
@@ -291,7 +297,7 @@ export default function LearnPage() {
       </header>
 
       {/* topic tabs */}
-      <div style={{
+      <div className="muz-learn-tabs" style={{
         borderBottom: "1px solid var(--border)", background: "var(--surface)",
         padding: "0 32px", display: "flex", gap: 0, overflowX: "auto", flexShrink: 0,
       }}>
@@ -313,7 +319,7 @@ export default function LearnPage() {
       </div>
 
       {/* content */}
-      <div style={{ flex: 1, overflowY: "auto", padding: "28px 32px" }}>
+      <div className="muz-learn-content" style={{ flex: 1, overflowY: "auto", padding: "28px 32px" }}>
         <div style={{ maxWidth: 900, margin: "0 auto" }}>
           <div style={{ marginBottom: 20 }}>
             <h2 style={{ fontSize: 18, fontWeight: 700, margin: "0 0 2px", color: "var(--text)" }}>
